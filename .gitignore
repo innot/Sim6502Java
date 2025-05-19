@@ -1,0 +1,6 @@
+/target/
+/.settings/
+/.idea/
+
+# Project exclude paths
+/as65/

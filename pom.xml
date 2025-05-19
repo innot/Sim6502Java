@@ -1,0 +1,83 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.innot.sim6502</groupId>
+  <artifactId>Sim6502Java</artifactId>
+  <version>0.9</version>
+  <name>Sim6502Java</name>
+  <description>Cycle accurate 6502 simulator in Java</description>
+  
+  <properties>
+	<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
+  <build>
+     <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <includes>
+          <include>*.hex</include>
+        </includes>
+      </testResource>
+    </testResources>
+
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <release>20</release>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+	  </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+            <archive>
+                <manifest>
+                    <addClasspath>true</addClasspath>
+					<!--       set your ComponentSource class name here! -->
+                    <mainClass>de.innot.sim6502.Sim6502</mainClass>
+                </manifest>
+            </archive>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+    
+    <dependencies>
+	    <dependency>
+	        <groupId>org.junit.jupiter</groupId>
+	        <artifactId>junit-jupiter-engine</artifactId>
+	        <version>(5.9,)</version>
+	        <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	    	<groupId>com.github.j123b567</groupId>
+	    	<artifactId>java-intelhex-parser</artifactId>
+	    	<version>master-9dec823556-1</version>
+	    </dependency>
+
+	</dependencies>
+
+</project>
