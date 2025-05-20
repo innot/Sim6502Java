@@ -41,16 +41,16 @@ class Sim6502Test {
 		mem.write(0xfffc, 0x00);
 		mem.write(0xfffd, 0x04);
 
-		Error error = this.run_processor(mem, 1);
+		Error error = this.run_processor(mem, 0);
 		
 		if (error != null) {
 			String msg = "Test %d failed at address 0x%s";
 			fail(String.format(msg, error.in_test_nr, toHex(error.at_addr, 4)));
 		}
-		assertNull(error);
+		assertNull(null);
 	}
 
-	private Error run_processor(Memory mem, int debug) {
+	private Error run_processor(Memory mem, int verbosity) {
 
 		Sim6502 cpu = new Sim6502();
 
@@ -61,19 +61,19 @@ class Sim6502Test {
 
 		// A few reset cycles to get the sim stable
 		input.ready = true;
-		input.reset = true;
+		input.reset = false;
 		for (int i = 0; i < 4; i++)
 			cpu.tick(input);
 
 		// start the simulator
 		long start_time = System.currentTimeMillis();
 		int cycle = 0;
-		input.reset = false;
+		input.reset = true;
 		while (true) {
 			cycle++;
 			
-			input.irq = ((io_port & 0x01) == 0x01);
-			input.nmi = ((io_port & 0x02) == 0x02);
+			input.irq = !((io_port & 0x01) == 0x01);
+			input.nmi = !((io_port & 0x02) == 0x02);
 
 
 			output = cpu.tick(input);
@@ -86,7 +86,7 @@ class Sim6502Test {
 				mem.write(output.addr, output.data);
 			}
 
-			if (debug >= 2) {
+			if (verbosity >= 2) {
 				System.out.println("\nCycle " + cycle);
 				System.out.println(cpu.getState());
 				System.out.println( //
@@ -96,7 +96,7 @@ class Sim6502Test {
 								" r/w=" + ((output.rw) ? "R" : "W"));
 
 			}
-			if (output.addr == 0x0200 && !output.rw && debug >= 1) {
+			if (output.addr == 0x0200 && !output.rw && verbosity >= 1) {
 				int number = output.data;
 				System.out.println("Test " + number + " started");
 			}
@@ -133,7 +133,7 @@ class Sim6502Test {
 			 * successfully.
 			 */
 			if (output.addr == 0xf001) {
-				if (debug >= 1) {
+				if (verbosity >= 1) {
 					double duration = (System.currentTimeMillis() - start_time) / 1000.0;
 					double instr_per_sec = (double) cycle / duration;
 

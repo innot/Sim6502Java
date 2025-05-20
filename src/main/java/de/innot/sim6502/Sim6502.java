@@ -391,15 +391,15 @@ public class Sim6502 {
 
 		CPUState c = this.cpu; // shorten
 
-		if (this.out.sync || this.in.irq || this.in.nmi || this.in.ready || this.in.reset) {
+		if (this.out.sync || !this.in.irq || !this.in.nmi || this.in.ready || !this.in.reset) {
 			// interrupt detection also works in RDY phases, but only NMI is "sticky"
 
 			// NMI is edge-triggered
-			if (!c.last_nmi_state && input.nmi) {
+			if (c.last_nmi_state && !input.nmi) {
 				c.nmi_pip |= 0x100;
 			}
 			// IRQ test is level triggered
-			if (input.irq && (0 == (c.P & IRQ_F))) {
+			if (!input.irq && (0 == (c.P & IRQ_F))) {
 				c.irq_pip |= 0x100;
 			}
 
@@ -426,11 +426,11 @@ public class Sim6502 {
 					c.brk_flags |= BRK_IRQ;
 				}
 				
-				// was: if (0 != (c.nmi_pip & 0xFC00)) { , but this can loose NMIs in extreme Situations.
+				// was: if (0 != (c.nmi_pip & 0xFC00)) { , but this can lose NMIs in extreme Situations.
 				if (c.nmi_pip >= 0x400) {
 					c.brk_flags |= BRK_NMI;
 				}
-				if (input.reset) {
+				if (!input.reset) {
 					c.brk_flags |= BRK_RESET;
 				}
 

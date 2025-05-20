@@ -1,9 +1,10 @@
 package de.innot.sim6502;
 
+
 public class CPUState {
 
 	/* status indicator flags */
-	public final static int M6502_CF = (1 << 0); /* carry */
+	public final static int M6502_CF = (1); /* carry */
 	public final static int M6502_ZF = (1 << 1); /* zero */
 	public final static int M6502_IF = (1 << 2); /* IRQ disable */
 	public final static int M6502_DF = (1 << 3); /* decimal mode */
@@ -57,7 +58,7 @@ public class CPUState {
 	}
 
 	public String toString() {
-		StringBuffer str = new StringBuffer();
+		StringBuilder str = new StringBuilder();
 		str.append("A:0x").append(Integer.toHexString(this.A)).append("\t");
 		str.append("X:0x").append(Integer.toHexString(this.X)).append("\t");
 		str.append("Y:0x").append(Integer.toHexString(this.Y)).append("\t");
@@ -74,15 +75,14 @@ public class CPUState {
 	}
 
 	public String statusToString() {
-        String str = ((this.P & M6502_NF) > 0 ? "N" : "-") +
+        return (((this.P & M6502_NF) > 0 ? "N" : "-") +
                 ((this.P & M6502_VF) > 0 ? "V" : "-") +
                 ((this.P & M6502_XF) > 0 ? "X" : "-") +
                 ((this.P & M6502_BF) > 0 ? "B" : "-") +
                 ((this.P & M6502_DF) > 0 ? "D" : "-") +
                 ((this.P & M6502_IF) > 0 ? "I" : "-") +
                 ((this.P & M6502_ZF) > 0 ? "Z" : "-") +
-                ((this.P & M6502_CF) > 0 ? "C" : "-");
-		return (str);
+                ((this.P & M6502_CF) > 0 ? "C" : "-"));
 	}
 	
 	public int getCurrentInstruction() {

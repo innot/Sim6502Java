@@ -1,16 +1,18 @@
 # About
 
-Sim6502Java is a cycle accurate simulation of the venerable MOS 6502 processor.
+Sim6502Java is a cycle-accurate simulation of the venerable MOS 6502 processor.
 
 This package also includes simulations of the 6520 PIA and 6522 VIA Chips.
 
 Most of this program is a straight 1:1 conversion from C to Java of the [6502 Simulator](https://github.com/floooh/chips/tree/master/chips)
-by Andre Weissflog, although it has been refactored to make it more object oriented and more readable.
+by Andre Weissflog, although it has been refactored to make it more object-oriented and more readable.
 
+It passes the [6502 functional tests](https://github.com/Klaus2m5/6502_65C02_functional_tests) 
+by Klaus Dormann, including the interrupt tests.
 
 # Usage
 
-To use the simulator just instantiate the SIM6502 class.
+To use the simulator, instantiate the SIM6502 class.
 
 Then set up an `SIM6502Input` object with the current state of the 6502 inputs.
 
@@ -27,13 +29,17 @@ Sim6502 cpu = new Sim6502();
 Sim6502Input input = new Sim6502Input();
 Sim6502Output output;
 
+...
+
 while(true) {
-	// Set input state as required
+	input.reset = true; // reset is active low, so set to true to go out of reset.
 	output = cpu.tick(input);
 	// handle output as required
 }
 
 ```
+
+
 
 
 
