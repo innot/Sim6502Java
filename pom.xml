@@ -4,9 +4,24 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.innot.sim6502</groupId>
     <artifactId>sim6502java</artifactId>
-    <version>0.9</version>
+    <version>0.9.2</version>
     <name>Sim6502Java</name>
     <description>Cycle accurate 6502 simulator in Java</description>
+
+    <!--
+    <profiles>
+        <profile>
+            <id>github</id>
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/innot/packaging</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+    -->
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -66,8 +81,8 @@
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub innot Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/innot/packaging</url>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/innot/Sim6502Java</url>
         </repository>
     </distributionManagement>
 
