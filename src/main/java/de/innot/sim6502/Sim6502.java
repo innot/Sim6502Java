@@ -29,12 +29,12 @@ freely, subject to the following restrictions:
  * (<a href="https://github.com/floooh/chips/">Project repo</a>)
  * https://github.com/floooh/chips/
  * <p>
- * Converted to Java and refactored to be more object oriented.
+ * Converted to Java and refactored to be more object-oriented.
  * <p>
  * This emuator handles all documented and undocumented Opcodes of the standard
- * 6502. Other variants like the 6510, 65c02 etc. are currently not supported.
+ * 6502. Other variants like the 6510, 65c02, etc. are currently not supported.
  * <p>
- * It passes the the
+ * It passes the
  * (<a href="https://github.com/Klaus2m5/6502_65C02_functional_tests">6502
  * Functional Test</a>) by Klaus Dormann
  * <p>
@@ -110,7 +110,7 @@ public class Sim6502 {
 
             if (0 == (cpu.A + val + c)) {
                 cpu.setStatusBits(ZERO_F);
-            } else if (1 == (ah & 0x08)) {
+            } else if ((ah & 0x08) > 0) {
                 cpu.setStatusBits(NEG_F);
             }
             if (0 != (~(cpu.A ^ val) & (cpu.A ^ (ah << 4)) & 0x80)) {
@@ -235,7 +235,7 @@ public class Sim6502 {
     }
 
     /**
-     * undocumented, unreliable ARR instruction, but this is tested by the Wolfgang
+     * Undocumented, unreliable ARR instruction, but this is tested by the Wolfgang
      * Lorenz C64 test suite implementation taken from MAME
      */
     static void arr(CPUState cpu) {
@@ -276,9 +276,9 @@ public class Sim6502 {
     }
 
     /**
-     * undocumented SBX instruction: AND X register with accumulator and store
-     * result in X register, then subtract byte from X register (without borrow)
-     * where the subtract works like a CMP instruction
+     * Undocumented SBX instruction: AND X register with accumulator and store
+     * the result in X register, then subtract byte from X register (without borrow)
+     * where the "subtract" works like a CMP instruction
      */
     static void sbx(CPUState cpu, int v) {
         int t = (cpu.A & cpu.X) - v;
@@ -319,8 +319,8 @@ public class Sim6502 {
     }
 
     /**
-     * Set the address bus to fetch the next opcode byte. SYNC flag is set to
-     * indicate a command cycle.
+     * Set the address bus to fetch the next opcode byte.
+     * The SYNC flag is set to indicate a command cycle.
      */
     private void fetch() {
         this.out.addr = this.cpu.PC & 0xffff;
@@ -362,7 +362,7 @@ public class Sim6502 {
     /**
      * Set N and Z flags depending on value.
      * <p>
-     * N is set if the bit 7 of the value is set. Z is set if the value is zero.
+     * N is set if bit 7 of the value is set. Z is set if the value is zero.
      *
      * @param v 8-bit data value.
      */
@@ -376,12 +376,13 @@ public class Sim6502 {
      * This should be called on the falling edge of Φ2.
      * <p>
      * This ensures correct behaviour in more complex designs that expect all address
-     * & data lines as well as the signals to be valid at the following rising edge
+     * and data lines as well as the signals to be valid at the following rising edge
      * of Φ2.
      *
      * @param input The current state of all input pins
      * @return The new state of all output pins.
      */
+    @SuppressWarnings({"PointlessBitwiseExpression", "DuplicateBranchesInSwitch"})
     public Sim6502Output tick(Sim6502Input input) {
 
         this.in = input;
@@ -407,7 +408,7 @@ public class Sim6502 {
                 return this.out;
             }
             if (this.out.sync) {
-                // load new instruction into 'instruction register' and restart tick counter
+                // load new instruction into 'instruction register' and restart the tick counter
                 c.IR = (getD() & 0xff) << 3;
                 this.out.sync = false;
 
@@ -416,14 +417,14 @@ public class Sim6502 {
                 // before SYNC
                 // - NMI is edge-triggered, and the change must have happened in
                 // any cycle before SYNC
-                // - RES behaves slightly different than on a real 6502, we go
+                // - RES behaves slightly different from on a real 6502: we go
                 // into RES state as soon as the pin goes active, from there
                 // on, behaviour is 'standard'
                 if (0 != (c.irq_pip & 0x400)) {
                     c.brk_flags |= BRK_IRQ;
                 }
 
-                // was: if (0 != (c.nmi_pip & 0xFC00)) { , but this can loose NMIs in extreme Situations.
+                // was: if (0 != (c.nmi_pip & 0xFC00)) -- but this can lose NMIs in extreme Situations.
                 if (c.nmi_pip >= 0x400) {
                     c.brk_flags |= BRK_NMI;
                 }
@@ -952,7 +953,6 @@ public class Sim6502 {
                 if ((c.P & 0x80) != 0x0) {
                     fetch();
                 }
-                ;
                 break;
             case (0x10 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -962,7 +962,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0x10 << 3) | 3:
                 c.PC = c.AD;
@@ -1910,7 +1909,6 @@ public class Sim6502 {
                 if ((c.P & 0x80) != 0x80) {
                     fetch();
                 }
-                ;
                 break;
             case (0x30 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -1920,7 +1918,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0x30 << 3) | 3:
                 c.PC = c.AD;
@@ -2861,7 +2858,6 @@ public class Sim6502 {
                 if ((c.P & 0x40) != 0x0) {
                     fetch();
                 }
-                ;
                 break;
             case (0x50 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -2871,7 +2867,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0x50 << 3) | 3:
                 c.PC = c.AD;
@@ -3807,7 +3802,6 @@ public class Sim6502 {
                 if ((c.P & 0x40) != 0x40) {
                     fetch();
                 }
-                ;
                 break;
             case (0x70 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -3817,7 +3811,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0x70 << 3) | 3:
                 c.PC = c.AD;
@@ -4740,7 +4733,6 @@ public class Sim6502 {
                 if ((c.P & 0x1) != 0x0) {
                     fetch();
                 }
-                ;
                 break;
             case (0x90 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -4750,7 +4742,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0x90 << 3) | 3:
                 c.PC = c.AD;
@@ -4845,7 +4836,7 @@ public class Sim6502 {
                 break;
             case (0x93 << 3) | 4:
                 setA(c.AD + c.Y);
-                setD(c.A & c.X & (int) ((getA() >> 8) + 1));
+                setD(c.A & c.X & ((getA() >> 8) + 1));
                 _WR();
                 break;
             case (0x93 << 3) | 5:
@@ -5074,7 +5065,7 @@ public class Sim6502 {
             case (0x9B << 3) | 3:
                 setA(c.AD + c.Y);
                 c.S = c.A & c.X;
-                setD(c.S & (int) ((getA() >> 8) + 1));
+                setD(c.S & ((getA() >> 8) + 1));
                 _WR();
                 break;
             case (0x9B << 3) | 4:
@@ -5104,7 +5095,7 @@ public class Sim6502 {
                 break;
             case (0x9C << 3) | 3:
                 setA(c.AD + c.X);
-                setD(c.Y & (int) ((getA() >> 8) + 1));
+                setD(c.Y & ((getA() >> 8) + 1));
                 _WR();
                 break;
             case (0x9C << 3) | 4:
@@ -5164,7 +5155,7 @@ public class Sim6502 {
                 break;
             case (0x9E << 3) | 3:
                 setA(c.AD + c.Y);
-                setD(c.X & (int) ((getA() >> 8) + 1));
+                setD(c.X & ((getA() >> 8) + 1));
                 _WR();
                 break;
             case (0x9E << 3) | 4:
@@ -5194,7 +5185,7 @@ public class Sim6502 {
                 break;
             case (0x9F << 3) | 3:
                 setA(c.AD + c.Y);
-                setD(c.A & c.X & (int) ((getA() >> 8) + 1));
+                setD(c.A & c.X & ((getA() >> 8) + 1));
                 _WR();
                 break;
             case (0x9F << 3) | 4:
@@ -5678,7 +5669,6 @@ public class Sim6502 {
                 if ((c.P & 0x1) != 0x1) {
                     fetch();
                 }
-                ;
                 break;
             case (0xB0 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -5688,7 +5678,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0xB0 << 3) | 3:
                 c.PC = c.AD;
@@ -6626,7 +6615,6 @@ public class Sim6502 {
                 if ((c.P & 0x2) != 0x0) {
                     fetch();
                 }
-                ;
                 break;
             case (0xD0 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -6636,7 +6624,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0xD0 << 3) | 3:
                 c.PC = c.AD;
@@ -7571,7 +7558,6 @@ public class Sim6502 {
                 if ((c.P & 0x2) != 0x2) {
                     fetch();
                 }
-                ;
                 break;
             case (0xF0 << 3) | 2:
                 setA((c.PC & 0xFF00) | (c.AD & 0x00FF));
@@ -7581,7 +7567,6 @@ public class Sim6502 {
                     c.nmi_pip >>= 1;
                     fetch();
                 }
-                ;
                 break;
             case (0xF0 << 3) | 3:
                 c.PC = c.AD;
@@ -8058,8 +8043,8 @@ public class Sim6502 {
 	/**
 	 * Handle the second have of a cycle (PHI2 HIGH)
 	 *
-	 * @param input
-	 * @return
+     * @param input The current state of all input pins
+     * @return The new state of all output pins.
 	 */
 	public Sim6502Output tock(Sim6502Input input) {
 		this.in = input;

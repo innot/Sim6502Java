@@ -141,7 +141,6 @@ class Sim6522Test {
 
     @Test
     void test_timer1_one_shot() {
-        int reg;
 
         writeRegister(Sim6522.REG_IER, 0b1010_0000);    // enable T2 IRQ
 
@@ -188,7 +187,6 @@ class Sim6522Test {
     @Test
     void test_timer2_pulse_counting() {
 
-        int reg;
         input.pb = 0b0100_0000;     // Set PB6 high
 
         writeRegister(Sim6522.REG_IER, 0b1010_0000);    // enable T2 IRQ

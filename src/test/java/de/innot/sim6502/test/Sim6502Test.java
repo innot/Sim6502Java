@@ -1,6 +1,5 @@
 package de.innot.sim6502.test;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ class Sim6502Test {
 			String msg = "Test %d failed at address 0x%s";
 			fail(String.format(msg, error.in_test_nr, toHex(error.at_addr, 4)));
 		}
-		assertNull(error);
 	}
 
 	@Test
@@ -47,7 +45,6 @@ class Sim6502Test {
 			String msg = "Test %d failed at address 0x%s";
 			fail(String.format(msg, error.in_test_nr, toHex(error.at_addr, 4)));
 		}
-		assertNull(error);
 	}
 
 	private Error run_processor(Memory mem, int debug) {
@@ -78,7 +75,7 @@ class Sim6502Test {
 
 			output = cpu.tick(input);
 
-			if (output.rw == true) {
+			if (output.rw) {
 				// read cycle
 				input.data = mem.read(output.addr);
 			} else {
@@ -88,7 +85,7 @@ class Sim6502Test {
 
 			if (debug >= 2) {
 				System.out.println("\nCycle " + cycle);
-				System.out.println(cpu.getState().toString());
+				System.out.println(cpu.getState());
 				System.out.println( //
 						"Bus: addr=0x" + Integer.toHexString(output.addr) + //
 								" data_out=0x" + Integer.toHexString(output.data & 0xff) + //
@@ -96,7 +93,7 @@ class Sim6502Test {
 								" r/w=" + ((output.rw) ? "R" : "W"));
 
 			}
-			if (output.addr == 0x0200 && output.rw == false && debug >= 1) {
+			if (output.addr == 0x0200 && !output.rw && debug >= 1) {
 				int number = output.data;
 				System.out.println("Test " + number + " started");
 			}
@@ -105,7 +102,7 @@ class Sim6502Test {
 			 * Address 0xbffc is a simulated I/O register to assert the IRQ and NMI lines.
 			 */
 			if(output.addr == 0xbffc) {
-				if (output.rw == true) {
+				if (output.rw) {
 					input.data = io_port;
 				} else {
 					io_port = output.data;
@@ -113,8 +110,9 @@ class Sim6502Test {
 			}
 
 			/*
-			 * An access of address 0xf000 indicates an error. As this access should be set
-			 * in an Subroutine, the return address is taken from the stack and is returned
+			 * Access of address 0xf000 indicates an error.
+			 * As this access should be set in a Subroutine,
+			 * the return address is taken from the stack and is returned
 			 * together with the test number.
 			 */
 			if (output.addr == 0xf000) {
@@ -129,7 +127,7 @@ class Sim6502Test {
 			}
 
 			/*
-			 * An access of address 0xf001 indicates that the program has completed
+			 * Access of address 0xf001 indicates that the program has completed
 			 * successfully.
 			 */
 			if (output.addr == 0xf001) {
@@ -145,7 +143,7 @@ class Sim6502Test {
 		}
 	}
 
-	final static String toHex(int value, int digits) {
+	static String toHex(int value, int digits) {
 		String hex = "0000" + Integer.toHexString(value);
 		return hex.substring(hex.length() - digits);
 	}

@@ -8,7 +8,7 @@ import cz.jaybee.intelhex.IntelHexException;
 import cz.jaybee.intelhex.Parser;
 
 public class Memory {
-	byte mem[];
+	byte[] mem;
 
 	public Memory(String memfile) {
 		this(0x10000, memfile);
@@ -19,6 +19,9 @@ public class Memory {
 		mem = new byte[size];
 		
 		InputStream is = getClass().getClassLoader().getResourceAsStream(memfile);
+		if (is == null) {
+			throw new IllegalArgumentException("Memory file " + memfile + " not found");
+		}
 		
 		Parser ihp = new Parser(is);
 
@@ -57,7 +60,7 @@ public class Memory {
 		if (addr < 0x0000 || addr > 0xffff) {
 			throw new IllegalArgumentException("Write to invalid address 0x" + Integer.toHexString(addr));
 		}
-		if (data < 0x00 || data > 0xff || addr < 0x0000 || addr > 0xffff) {
+		if (data < 0x00 || data > 0xff) {
 			throw new IllegalArgumentException("Write: invalid data " + data);
 		}
 		mem[addr] = (byte) data;

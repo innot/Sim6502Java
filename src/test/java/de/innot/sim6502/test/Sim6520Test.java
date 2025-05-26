@@ -71,9 +71,6 @@ class Sim6520Test {
 
 	/**
 	 * Test simple irq on all 4 lines
-	 * 
-	 * @param register
-	 * @param value
 	 */
 	@Test
 	public void test_simple_irq() {
@@ -187,7 +184,7 @@ class Sim6520Test {
 	}
 
 	/**
-	 * Set the CS lines to active the chip.
+	 * Set the CS lines to active to enable the chip.
 	 */
 	private void enable() {
 		input.cs0 = true;
