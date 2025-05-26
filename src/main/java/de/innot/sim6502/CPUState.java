@@ -1,10 +1,9 @@
 package de.innot.sim6502;
 
-
 public class CPUState {
 
 	/* status indicator flags */
-	public final static int M6502_CF = (1); /* carry */
+	public final static int M6502_CF = (1 << 0); /* carry */
 	public final static int M6502_ZF = (1 << 1); /* zero */
 	public final static int M6502_IF = (1 << 2); /* IRQ disable */
 	public final static int M6502_DF = (1 << 3); /* decimal mode */
@@ -58,31 +57,33 @@ public class CPUState {
 	}
 
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-		str.append("A:0x").append(Integer.toHexString(this.A)).append("\t");
-		str.append("X:0x").append(Integer.toHexString(this.X)).append("\t");
-		str.append("Y:0x").append(Integer.toHexString(this.Y)).append("\t");
-		str.append("P:").append(this.statusToString()).append("\t");
-		str.append("SP: 0x01").append(Integer.toHexString(this.S & 0xff)).append("\t");
-		str.append("PC:0x").append(Integer.toHexString(this.PC)).append("\t");
+		StringBuffer str = new StringBuffer();
+		str.append("A:0x" + Integer.toHexString(this.A) + "\t");
+		str.append("X:0x" + Integer.toHexString(this.X) + "\t");
+		str.append("Y:0x" + Integer.toHexString(this.Y) + "\t");
+		str.append("P:" + this.statusToString() + "\t");
+		str.append("SP: 0x01" + Integer.toHexString(this.S & 0xff) + "\t");
+		str.append("PC:0x" + Integer.toHexString(this.PC) + "\t");
 
 		String instr = "0x" + Integer.toHexString(IR >> 3);
 		String cycle = Integer.toString(this.IR & 0x07);
 
-		str.append("IR:").append(instr).append("/").append(cycle).append("\t");
-		str.append("AD:0x").append(Integer.toHexString(this.AD)).append("\t");
+		str.append("IR:" + instr +"/"+cycle+ "\t");
+		str.append("AD:0x" + Integer.toHexString(this.AD) + "\t");
 		return (str.toString());
 	}
 
 	public String statusToString() {
-        return (((this.P & M6502_NF) > 0 ? "N" : "-") +
-                ((this.P & M6502_VF) > 0 ? "V" : "-") +
-                ((this.P & M6502_XF) > 0 ? "X" : "-") +
-                ((this.P & M6502_BF) > 0 ? "B" : "-") +
-                ((this.P & M6502_DF) > 0 ? "D" : "-") +
-                ((this.P & M6502_IF) > 0 ? "I" : "-") +
-                ((this.P & M6502_ZF) > 0 ? "Z" : "-") +
-                ((this.P & M6502_CF) > 0 ? "C" : "-"));
+		StringBuffer str = new StringBuffer();
+		str.append((this.P & M6502_NF) > 0 ? "N" : "-");
+		str.append((this.P & M6502_VF) > 0 ? "V" : "-");
+		str.append((this.P & M6502_XF) > 0 ? "X" : "-");
+		str.append((this.P & M6502_BF) > 0 ? "B" : "-");
+		str.append((this.P & M6502_DF) > 0 ? "D" : "-");
+		str.append((this.P & M6502_IF) > 0 ? "I" : "-");
+		str.append((this.P & M6502_ZF) > 0 ? "Z" : "-");
+		str.append((this.P & M6502_CF) > 0 ? "C" : "-");
+		return (str.toString());
 	}
 	
 	public int getCurrentInstruction() {

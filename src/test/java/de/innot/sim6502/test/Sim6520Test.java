@@ -71,8 +71,10 @@ class Sim6520Test {
 
 	/**
 	 * Test simple irq on all 4 lines
-	 *
-     */
+	 * 
+	 * @param register
+	 * @param value
+	 */
 	@Test
 	public void test_simple_irq() {
 

@@ -24,15 +24,18 @@ freely, subject to the following restrictions:
 
 /**
  * MOS 6520 PIA emulator.
- * <p>
+ * 
+ * 
  * Based on the
  * {@link <a href="https://archive.org/details/rockwell_r6520_pia">Rockwell
  * R6520</a>} PIA Datasheet Rev.4
- *
+ * 
+ * 
  * @author Thomas Holland
  * 
  * @version 1.0 First release
- *
+ * 
+ * 
  */
 
 public class Sim6520 {
@@ -63,7 +66,7 @@ public class Sim6520 {
 	final static int PIP_IRQ = 0;
 
 	/** Port State **/
-	private static class PortState {
+	private class PortState {
 		int inpr;
 
 		int pins;
@@ -77,8 +80,8 @@ public class Sim6520 {
 		boolean c2_trigger_to_high;
 	}
 
-	final PortState pa;
-	final PortState pb;
+	PortState pa;
+	PortState pb;
 
 	/** control register a */
 	int cra;
@@ -234,7 +237,7 @@ public class Sim6520 {
 
 	/*-- IMPLEMENTATION ----------------------------------------------------------*/
 
-	final Sim6520Output output = new Sim6520Output();
+	Sim6520Output output = new Sim6520Output();
 
 	private void init_port(PortState p) {
 		p.inpr = 0x00; // the original mos_6520.h had a 0xFF here, but according to datasheet all
@@ -291,7 +294,7 @@ public class Sim6520 {
 		// Check for CA1 transitions and flag IRQ as appropriate for edge
 
 		// CA1 Falling edge
-		if (ca1_transition && !new_ca1 && isIRQ1NegTransition(this.cra)) {
+		if (ca1_transition && new_ca1 == false && isIRQ1NegTransition(this.cra)) {
 			this.cra |= CR_IRQ_1_FLAG;
 			reset_ca2 = true;
 		}
@@ -306,10 +309,10 @@ public class Sim6520 {
 
 		// Only check if CA2 is set to input
 		if (isCAB2Input(this.cra)) {
-			if (ca2_transition && !new_ca2 && isIRQ2NegTransition(this.cra)) {
+			if (ca2_transition && new_ca2 == false && isIRQ2NegTransition(this.cra)) {
 				this.cra |= CR_IRQ_2_FLAG;
 			}
-			if (ca2_transition && new_ca2 && isIRQ2PosTransition(this.cra)) {
+			if (ca2_transition && new_ca2 == true && isIRQ2PosTransition(this.cra)) {
 				this.cra |= CR_IRQ_2_FLAG;
 			}
 		}
@@ -322,11 +325,11 @@ public class Sim6520 {
 		boolean reset_cb2 = false;
 
 		// Check for CB1 transitions and flag IRQ as appropriate for edge
-		if (cb1_transition && !new_cb1 && isIRQ1NegTransition(this.crb)) {
+		if (cb1_transition && new_cb1 == false && isIRQ1NegTransition(this.crb)) {
 			this.crb |= CR_IRQ_1_FLAG;
 			reset_cb2 = true;
 		}
-		if (cb1_transition && new_cb1 && isIRQ1PosTransition(this.crb)) {
+		if (cb1_transition && new_cb1 == true && isIRQ1PosTransition(this.crb)) {
 			this.crb |= CR_IRQ_1_FLAG;
 			reset_cb2 = true;
 		}
@@ -335,10 +338,10 @@ public class Sim6520 {
 		boolean cb2_transition = this.pb.c2_in != new_cb2;
 
 		if (isCAB2Input(this.crb)) {
-			if (cb2_transition && !new_cb2 && isIRQ2NegTransition(this.crb)) {
+			if (cb2_transition && new_cb2 == false && isIRQ2NegTransition(this.crb)) {
 				this.crb |= CR_IRQ_2_FLAG;
 			}
-			if (cb2_transition && new_cb2 && isIRQ2PosTransition(this.crb)) {
+			if (cb2_transition && new_cb2 == true && isIRQ2PosTransition(this.crb)) {
 				this.crb |= CR_IRQ_2_FLAG;
 			}
 		}
@@ -379,7 +382,7 @@ public class Sim6520 {
 				this.pa.c2_out = false;
 				this.pa.c2_trigger_to_low = false;
 				this.pa.c2_trigger_to_high = true;
-			} else if ((this.cra & CRA_CA2_READ_STROBE_RESTORE) != 0) {
+			} else if ((this.cra & CRA_CA2_READ_STROBE_RESTORE) == 1) {
 				/*
 				 * CA2 returns high on the next PHI2 clock negative transition following a read
 				 * of Output Register A.
@@ -411,7 +414,7 @@ public class Sim6520 {
 				this.pb.c2_out = false;
 				this.pb.c2_trigger_to_low = false;
 				this.pb.c2_trigger_to_high = true;
-			} else if ((this.crb & CRB_CB2_WRITE_STROBE_RESTORE) != 0) {
+			} else if ((this.crb & CRB_CB2_WRITE_STROBE_RESTORE) == 1) {
 				/*
 				 * CB2 returns high on the next PHI2 clock negative transition following a write
 				 * to Output Register B.
@@ -462,12 +465,12 @@ public class Sim6520 {
 		// the output register.
 		if ((this.cra & CR_IRQ1_ENABLE) != 0 || (this.cra & CR_IRQ2_ENABLE) != 0) {
 			int irq = (this.cra & CR_IRQ_1_FLAG) | (this.cra & CR_IRQ_2_FLAG);
-			output.irqa = irq == 0; // negate because active low
+			output.irqa = !(irq != 0); // negate because active low
 		}
 
 		if ((this.crb & CR_IRQ1_ENABLE) != 0 || (this.crb & CR_IRQ2_ENABLE) != 0) {
 			int irq = (this.crb & CR_IRQ_1_FLAG) | (this.crb & CR_IRQ_2_FLAG);
-			output.irqb = irq == 0; // negate because active low
+			output.irqb = !(irq != 0); // negate because active low
 		}
 	}
 
@@ -570,7 +573,7 @@ public class Sim6520 {
 	 */
 	public Sim6520Output tick(Sim6520Input input) {
 
-		if (!input.reset) { // active low
+		if (input.reset == false) { // active low
 			m6520_reset();
 			output.data = 0;
 			update_output();
@@ -581,7 +584,7 @@ public class Sim6520 {
 
 		cab_change_detection(input);
 
-		if (input.phi2) {
+		if (input.phi2 == true) {
 			// Register Read/Write only happens on the positive edge of phi2 (when CPU has
 			// set up all control lines)
 
@@ -589,7 +592,8 @@ public class Sim6520 {
 				int addr = input.rs;
 				if (input.rw) {
 					// Read register
-                    output.data = read_register(addr);
+					int data = read_register(addr);
+					output.data = data;
 				} else {
 					// Write Register
 					int data = input.data;

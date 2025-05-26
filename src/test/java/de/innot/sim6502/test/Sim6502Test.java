@@ -3,7 +3,6 @@ package de.innot.sim6502.test;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.innot.sim6502.Sim6502;
@@ -17,7 +16,6 @@ class Sim6502Test {
 		public int at_addr = 0;
 	}
 
-	@Disabled	// This test is very slow. It is disabled by default.
 	@Test
 	public void testFunctional() {
 		Memory mem = new Memory("6502_functional_test.hex");
@@ -31,7 +29,7 @@ class Sim6502Test {
 			String msg = "Test %d failed at address 0x%s";
 			fail(String.format(msg, error.in_test_nr, toHex(error.at_addr, 4)));
 		}
-		assertNull(null); // just to make static code analysis happy :-)
+		assertNull(error);
 	}
 
 	@Test
@@ -43,16 +41,16 @@ class Sim6502Test {
 		mem.write(0xfffc, 0x00);
 		mem.write(0xfffd, 0x04);
 
-		Error error = this.run_processor(mem, 0);
+		Error error = this.run_processor(mem, 1);
 		
 		if (error != null) {
 			String msg = "Test %d failed at address 0x%s";
 			fail(String.format(msg, error.in_test_nr, toHex(error.at_addr, 4)));
 		}
-		assertNull(null);
+		assertNull(error);
 	}
 
-	private Error run_processor(Memory mem, int verbosity) {
+	private Error run_processor(Memory mem, int debug) {
 
 		Sim6502 cpu = new Sim6502();
 
@@ -63,24 +61,24 @@ class Sim6502Test {
 
 		// A few reset cycles to get the sim stable
 		input.ready = true;
-		input.reset = false;
+		input.reset = true;
 		for (int i = 0; i < 4; i++)
 			cpu.tick(input);
 
 		// start the simulator
 		long start_time = System.currentTimeMillis();
 		int cycle = 0;
-		input.reset = true;
+		input.reset = false;
 		while (true) {
 			cycle++;
 			
-			input.irq = !((io_port & 0x01) == 0x01);
-			input.nmi = !((io_port & 0x02) == 0x02);
+			input.irq = ((io_port & 0x01) == 0x01);
+			input.nmi = ((io_port & 0x02) == 0x02);
 
 
 			output = cpu.tick(input);
 
-			if (output.rw) {
+			if (output.rw == true) {
 				// read cycle
 				input.data = mem.read(output.addr);
 			} else {
@@ -88,9 +86,9 @@ class Sim6502Test {
 				mem.write(output.addr, output.data);
 			}
 
-			if (verbosity >= 2) {
+			if (debug >= 2) {
 				System.out.println("\nCycle " + cycle);
-				System.out.println(cpu.getState());
+				System.out.println(cpu.getState().toString());
 				System.out.println( //
 						"Bus: addr=0x" + Integer.toHexString(output.addr) + //
 								" data_out=0x" + Integer.toHexString(output.data & 0xff) + //
@@ -98,7 +96,7 @@ class Sim6502Test {
 								" r/w=" + ((output.rw) ? "R" : "W"));
 
 			}
-			if (output.addr == 0x0200 && !output.rw && verbosity >= 1) {
+			if (output.addr == 0x0200 && output.rw == false && debug >= 1) {
 				int number = output.data;
 				System.out.println("Test " + number + " started");
 			}
@@ -107,7 +105,7 @@ class Sim6502Test {
 			 * Address 0xbffc is a simulated I/O register to assert the IRQ and NMI lines.
 			 */
 			if(output.addr == 0xbffc) {
-				if (output.rw) {
+				if (output.rw == true) {
 					input.data = io_port;
 				} else {
 					io_port = output.data;
@@ -135,7 +133,7 @@ class Sim6502Test {
 			 * successfully.
 			 */
 			if (output.addr == 0xf001) {
-				if (verbosity >= 1) {
+				if (debug >= 1) {
 					double duration = (System.currentTimeMillis() - start_time) / 1000.0;
 					double instr_per_sec = (double) cycle / duration;
 
@@ -147,7 +145,7 @@ class Sim6502Test {
 		}
 	}
 
-	static String toHex(int value, int digits) {
+	final static String toHex(int value, int digits) {
 		String hex = "0000" + Integer.toHexString(value);
 		return hex.substring(hex.length() - digits);
 	}
