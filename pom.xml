@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.innot.sim6502</groupId>
     <artifactId>sim6502java</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
     <name>Sim6502Java</name>
     <description>Cycle accurate 6502 simulator in Java</description>
 
